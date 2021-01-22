@@ -1,5 +1,6 @@
-use geo2d::{Polygon, Rectangle, Point2};
-use num_traits::{Float};
+use crate::geo2d::{Polygon, Rectangle};
+use nalgebra::{Point2, RealField, Scalar};
+use num_traits::Float;
 pub mod compare_segments;
 pub mod compute_fields;
 mod connect_edges;
@@ -26,7 +27,7 @@ pub enum Operation {
 
 pub trait BooleanOp<F, Rhs = Self>
 where
-    F: Float,
+    F: Float + Scalar + RealField,
 {
     fn boolean(&self, rhs: &Rhs, operation: Operation) -> Vec<Polygon<F>>;
 
@@ -49,7 +50,7 @@ where
 
 impl<F> BooleanOp<F> for Polygon<F>
 where
-    F: Float,
+    F: Float + Scalar + RealField,
 {
     fn boolean(&self, rhs: &Polygon<F>, operation: Operation) -> Vec<Polygon<F>> {
         boolean_operation(&[self.clone()], &[rhs.clone()], operation)
@@ -58,7 +59,7 @@ where
 
 impl<F> BooleanOp<F, Vec<Polygon<F>>> for Polygon<F>
 where
-    F: Float,
+    F: Float + Scalar + RealField,
 {
     fn boolean(&self, rhs: &Vec<Polygon<F>>, operation: Operation) -> Vec<Polygon<F>> {
         boolean_operation(&[self.clone()], rhs.as_slice(), operation)
@@ -67,7 +68,7 @@ where
 
 impl<F> BooleanOp<F> for Vec<Polygon<F>>
 where
-    F: Float,
+    F: Float + Scalar + RealField,
 {
     fn boolean(&self, rhs: &Vec<Polygon<F>>, operation: Operation) -> Vec<Polygon<F>> {
         boolean_operation(self.as_slice(), rhs.as_slice(), operation)
@@ -76,32 +77,33 @@ where
 
 impl<F> BooleanOp<F, Polygon<F>> for Vec<Polygon<F>>
 where
-    F: Float,
+    F: Float + Scalar + RealField,
 {
     fn boolean(&self, rhs: &Polygon<F>, operation: Operation) -> Vec<Polygon<F>> {
         boolean_operation(self.as_slice(), &[rhs.clone()], operation)
     }
 }
 
-fn boolean_operation<F>(subject: &[Polygon<F>], clipping: &[Polygon<F>], operation: Operation) -> Vec<Polygon<F>>
+fn boolean_operation<F>(
+    subject: &[Polygon<F>],
+    clipping: &[Polygon<F>],
+    operation: Operation,
+) -> Vec<Polygon<F>>
 where
-    F: Float,
+    F: Float + Scalar + RealField,
 {
     let mut sbbox = Rectangle {
-        min: Point2 {
-            x: F::infinity(),
-            y: F::infinity(),
-        },
-        max: Point2 {
-            x: F::neg_infinity(),
-            y: F::neg_infinity(),
-        },
+        mins: Point2::new(F::infinity(), F::infinity()),
+        maxs: Point2::new(F::neg_infinity(), F::neg_infinity()),
     };
     let mut cbbox = sbbox;
 
     let mut event_queue = fill_queue(subject, clipping, &mut sbbox, &mut cbbox, operation);
 
-    if sbbox.min.x > cbbox.max.x || cbbox.min.x > sbbox.max.x || sbbox.min.y > cbbox.max.y || cbbox.min.y > sbbox.max.y
+    if sbbox.mins.x > cbbox.maxs.x
+        || cbbox.mins.x > sbbox.maxs.x
+        || sbbox.mins.y > cbbox.maxs.y
+        || cbbox.mins.y > sbbox.maxs.y
     {
         return trivial_result(subject, clipping, operation);
     }
@@ -111,9 +113,13 @@ where
     connect_edges(&sorted_events, operation)
 }
 
-fn trivial_result<F>(subject: &[Polygon<F>], clipping: &[Polygon<F>], operation: Operation) -> Vec<Polygon<F>>
+fn trivial_result<F>(
+    subject: &[Polygon<F>],
+    clipping: &[Polygon<F>],
+    operation: Operation,
+) -> Vec<Polygon<F>>
 where
-    F: Float,
+    F: Float + Scalar + RealField,
 {
     match operation {
         Operation::Intersection => vec![],

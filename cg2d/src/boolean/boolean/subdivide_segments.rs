@@ -4,29 +4,27 @@ use super::possible_intersection::possible_intersection;
 use super::sweep_event::SweepEvent;
 use super::Operation;
 use crate::boolean::splay::SplaySet;
-use geo2d::Rectangle;
-use num_traits::Float;
-use heap::simple_heap::{SimpleHeap};
+use crate::geo2d::Rectangle;
+use heap::simple_heap::SimpleHeap;
+use nalgebra::RealField;
 use std::rc::Rc;
 
-pub fn subdivide<F>(
+pub fn subdivide<F: RealField>(
     event_queue: &mut SimpleHeap<Rc<SweepEvent<F>>>,
     sbbox: &Rectangle<F>,
     cbbox: &Rectangle<F>,
     operation: Operation,
 ) -> Vec<Rc<SweepEvent<F>>>
-where
-    F: Float,
 {
     let mut sweep_line = SplaySet::<Rc<SweepEvent<F>>, _>::new(compare_segments);
     let mut sorted_events: Vec<Rc<SweepEvent<F>>> = Vec::new();
-    let rightbound = sbbox.max.x.min(cbbox.max.x);
+    let rightbound = sbbox.maxs.x.min(cbbox.maxs.x);
 
     while let Some(event) = event_queue.pop() {
         sorted_events.push(event.clone());
 
         if operation == Operation::Intersection && event.point.x > rightbound
-            || operation == Operation::Difference && event.point.x > sbbox.max.x
+            || operation == Operation::Difference && event.point.x > sbbox.maxs.x
         {
             break;
         }

@@ -2,8 +2,8 @@
 name = "rect_map"
 version = "0.1.0"
 authors = ["yineng <dev@dev.com>"]
+edition = "2018"
 
 [dependencies]
-cgmath = { path = "../cgmath" }
 slab = { path = "../../pi_lib/slab" }
-
+nalgebra = "0.24.0"

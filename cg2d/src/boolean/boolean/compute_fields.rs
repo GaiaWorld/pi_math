@@ -1,11 +1,11 @@
 use super::sweep_event::{EdgeType, SweepEvent};
 use super::Operation;
-use num_traits::Float;
+use nalgebra::{RealField, Scalar};
 use std::rc::Rc;
 
 pub fn compute_fields<F>(event: &Rc<SweepEvent<F>>, maybe_prev: Option<&Rc<SweepEvent<F>>>, operation: Operation)
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     if let Some(prev) = maybe_prev {
         if event.is_subject == prev.is_subject {
@@ -24,7 +24,7 @@ where
 
 fn in_result<F>(event: &SweepEvent<F>, operation: Operation) -> bool
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     match event.get_edge_type() {
         EdgeType::Normal => match operation {

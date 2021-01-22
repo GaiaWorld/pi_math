@@ -1,19 +1,26 @@
 use super::sweep_event::SweepEvent;
-use geo2d::Point2;
-use num_traits::Float;
-use heap::simple_heap::{SimpleHeap};
+use heap::simple_heap::SimpleHeap;
+use nalgebra::{Point2, RealField, Scalar};
 use std::rc::Rc;
 
-pub fn divide_segment<F>(se: &Rc<SweepEvent<F>>, inter: Point2<F>, queue: &mut SimpleHeap<Rc<SweepEvent<F>>>)
-where
-    F: Float,
-{
+pub fn divide_segment<F: Scalar + RealField>(
+    se: &Rc<SweepEvent<F>>,
+    inter: Point2<F>,
+    queue: &mut SimpleHeap<Rc<SweepEvent<F>>>,
+) {
     let other_event = match se.get_other_event() {
         Some(other_event) => other_event,
         None => return,
     };
 
-    let r = SweepEvent::new_rc(se.contour_id, inter, false, Rc::downgrade(&se), se.is_subject, true);
+    let r = SweepEvent::new_rc(
+        se.contour_id,
+        inter,
+        false,
+        Rc::downgrade(&se),
+        se.is_subject,
+        true,
+    );
     let l = SweepEvent::new_rc(
         se.contour_id,
         inter,
@@ -40,8 +47,8 @@ mod test {
     use super::super::segment_intersection::{intersection, LineIntersection};
     use super::super::sweep_event::SweepEvent;
     use super::*;
-    use geo2d::Point2;
-    use std::cmp::{Ordering};
+    use nalgebra::Point2;
+    use std::cmp::Ordering;
     use std::rc::{Rc, Weak};
 
     fn make_simple(
@@ -53,13 +60,20 @@ mod test {
     ) -> (Rc<SweepEvent<f64>>, Rc<SweepEvent<f64>>) {
         let other = SweepEvent::new_rc(
             0,
-            Point2 { x: other_x, y: other_y },
+            Point2::new(other_x, other_y),
             false,
             Weak::new(),
             is_subject,
             true,
         );
-        let event = SweepEvent::new_rc(0, Point2 { x, y }, true, Rc::downgrade(&other), is_subject, true);
+        let event = SweepEvent::new_rc(
+            0,
+            Point2::new(x, y),
+            true,
+            Rc::downgrade(&other),
+            is_subject,
+            true,
+        );
 
         (event, other)
     }

@@ -2,9 +2,9 @@
 name = "color"
 version = "0.1.0"
 authors = ["yineng <dev@dev.com>"]
+edition = "2018"
 
 [dependencies]
-# cgmath = { version = "0.16.1" }
-cgmath = { path = "../cgmath" }
 serde = { version = "1.0", features = ["derive"], optional = true }
-
+num-traits = "0.2.14"
+ncollide2d = "0.27.0"

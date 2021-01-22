@@ -1,10 +1,8 @@
 extern crate core;
-extern crate cgmath;
 #[cfg(feature = "serde")]
 #[macro_use]
 extern crate serde;
-
-use cgmath::BaseFloat;
+use num_traits::Float;
 
 /// A RGBA `Color`. Each color component is a floating point value
 /// with a range from 0 to 1.
@@ -28,7 +26,7 @@ impl Into<u32> for Color<f32> {
     }
 }
 
-impl<S: BaseFloat> From<u32> for Color<S> {
+impl<S: Float> From<u32> for Color<S> {
     fn from(encoded: u32) -> Self {
         let max = S::from(255.0).unwrap();
         Color::new(
@@ -53,7 +51,7 @@ impl Into<[u8; 4]> for Color<f32> {
     }
 }
 
-impl<S: BaseFloat> From<[u8; 4]> for Color<S> {
+impl<S: Float> From<[u8; 4]> for Color<S> {
     fn from(v: [u8; 4]) -> Self {
         let max = S::from(255.0).unwrap();
         Color::new(
@@ -65,7 +63,7 @@ impl<S: BaseFloat> From<[u8; 4]> for Color<S> {
     }
 }
 
-impl<S: BaseFloat> Color<S> {
+impl<S: Float> Color<S> {
     pub fn new(r: S, g: S, b: S, a: S) -> Self {
         Color {
             r: r,
@@ -126,7 +124,7 @@ impl<S: BaseFloat> Color<S> {
     }
 }
 
-impl<S: BaseFloat> Color<S> {
+impl<S: Float> Color<S> {
     pub fn white() -> Self {
         Color::new(S::one(), S::one(), S::one(), S::one())
     }

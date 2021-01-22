@@ -1,14 +1,16 @@
 [package]
-name = "octree"
+name = "spatialtree"
 version = "0.1.0"
 authors = ["yineng <dev@dev.com>"]
+edition = "2018"
 
 [dependencies]
-# cgmath = { version = "0.16.1" }
-cgmath = { path = "../cgmath" }
-collision = { path = "../collision" }
+ncollide2d = "0.27.0"
+ncollide3d = "0.27.0"
+nalgebra = "0.24.0"
 map = { path = "../../pi_lib/map" }
 slab = { path = "../../pi_lib/slab" }
+num-traits = "0.2.14"
 
 [dev-dependencies]
 pcg_rand = "0.12"

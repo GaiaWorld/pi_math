@@ -1,13 +1,13 @@
+use super::helper::less_if;
 use super::signed_area::signed_area;
 use super::sweep_event::SweepEvent;
-use num_traits::Float;
+use nalgebra::{RealField, Scalar};
 use std::cmp::Ordering;
 use std::rc::Rc;
-use super::helper::less_if;
 
 pub fn compare_segments<F>(le1: &Rc<SweepEvent<F>>, le2: &Rc<SweepEvent<F>>) -> Ordering
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     if Rc::ptr_eq(&le1, &le2) {
         return Ordering::Equal;
@@ -52,10 +52,10 @@ where
 mod test {
     use super::super::sweep_event::SweepEvent;
     use super::compare_segments;
+    use nalgebra::Point2;
     use std::cmp::Ordering;
     use std::rc::{Rc, Weak};
-    use geo2d::{Point2};
-    
+
     fn make_simple(
         contour_id: u32,
         x: f64,
@@ -66,7 +66,7 @@ mod test {
     ) -> (Rc<SweepEvent<f64>>, Rc<SweepEvent<f64>>) {
         let other = SweepEvent::new_rc(
             contour_id,
-            Point2::<f64> { x: other_x, y: other_y },
+            Point2::new(other_x, other_y),
             false,
             Weak::new(),
             is_subject,
@@ -74,7 +74,7 @@ mod test {
         );
         let event = SweepEvent::new_rc(
             contour_id,
-            Point2::<f64> { x, y },
+            Point2::new(x, y),
             true,
             Rc::downgrade(&other),
             is_subject,

@@ -1,30 +1,42 @@
-use std::cmp::Ordering;
-use geo2d::{Polygon, Rectangle, PolygonIter};
+use crate::geo2d::{Polygon, PolygonIter, Rectangle};
+use heap::simple_heap::SimpleHeap;
+use nalgebra::{RealField, Scalar};
 use num_traits::Float;
-use heap::simple_heap::{SimpleHeap};
+use std::cmp::Ordering;
 use std::rc::{Rc, Weak};
 
 use super::sweep_event::SweepEvent;
 use super::Operation;
 
-pub fn fill_queue<F>(
+pub fn fill_queue<F: Scalar + RealField + Float>(
     subject: &[Polygon<F>],
     clipping: &[Polygon<F>],
     sbbox: &mut Rectangle<F>,
     cbbox: &mut Rectangle<F>,
     operation: Operation,
-) -> SimpleHeap<Rc<SweepEvent<F>>>
-where
-    F: Float,
-{
+) -> SimpleHeap<Rc<SweepEvent<F>>> {
     let mut event_queue: SimpleHeap<Rc<SweepEvent<F>>> = SimpleHeap::new(Ordering::Greater);
     let mut contour_id = 0u32;
 
     for polygon in subject {
         contour_id += 1;
-        process_polygon(polygon.exterior(), true, contour_id, &mut event_queue, sbbox, true);
+        process_polygon(
+            polygon.exterior(),
+            true,
+            contour_id,
+            &mut event_queue,
+            sbbox,
+            true,
+        );
         for i in 0..polygon.hole_num() {
-            process_polygon(polygon.hole(i), true, contour_id, &mut event_queue, sbbox, false);
+            process_polygon(
+                polygon.hole(i),
+                true,
+                contour_id,
+                &mut event_queue,
+                sbbox,
+                false,
+            );
         }
     }
 
@@ -33,31 +45,50 @@ where
         if exterior {
             contour_id += 1;
         }
-        process_polygon(polygon.exterior(), false, contour_id, &mut event_queue, cbbox, exterior);
+        process_polygon(
+            polygon.exterior(),
+            false,
+            contour_id,
+            &mut event_queue,
+            cbbox,
+            exterior,
+        );
         for i in 0..polygon.hole_num() {
-            process_polygon(polygon.hole(i), false, contour_id, &mut event_queue, cbbox, false);
+            process_polygon(
+                polygon.hole(i),
+                false,
+                contour_id,
+                &mut event_queue,
+                cbbox,
+                false,
+            );
         }
     }
 
     event_queue
 }
 
-fn process_polygon<F>(
+fn process_polygon<F: Scalar + RealField + Float>(
     contour_or_hole: PolygonIter<F>,
     is_subject: bool,
     contour_id: u32,
     event_queue: &mut SimpleHeap<Rc<SweepEvent<F>>>,
     bbox: &mut Rectangle<F>,
     is_exterior_ring: bool,
-) where
-    F: Float,
-{
+) {
     for (start, end) in contour_or_hole.lines() {
         if start == end {
             continue; // skip collapsed edges
         }
 
-        let e1 = SweepEvent::new_rc(contour_id, start.clone(), false, Weak::new(), is_subject, is_exterior_ring);
+        let e1 = SweepEvent::new_rc(
+            contour_id,
+            start.clone(),
+            false,
+            Weak::new(),
+            is_subject,
+            is_exterior_ring,
+        );
         let e2 = SweepEvent::new_rc(
             contour_id,
             end.clone(),
@@ -74,10 +105,10 @@ fn process_polygon<F>(
             e1.set_left(true)
         }
 
-        bbox.min.x = bbox.min.x.min(start.x);
-        bbox.min.y = bbox.min.y.min(start.y);
-        bbox.max.x = bbox.max.x.max(start.x);
-        bbox.max.y = bbox.max.y.max(start.y);
+        bbox.mins.x = Float::min(bbox.mins.x, start.x);
+        bbox.mins.y = Float::min(bbox.mins.y, start.y);
+        bbox.maxs.x = Float::min(bbox.maxs.x, start.x);
+        bbox.maxs.y = Float::min(bbox.maxs.y, start.y);
 
         event_queue.push(e1);
         event_queue.push(e2);
@@ -87,13 +118,13 @@ fn process_polygon<F>(
 #[cfg(test)]
 mod test {
     use super::*;
-    use geo2d::Point2;
+    use heap::simple_heap::SimpleHeap;
+    use nalgebra::Point2;
     use std::cmp::Ordering;
-    use heap::simple_heap::{SimpleHeap};
     use std::rc::{Rc, Weak};
 
     fn make_simple(x: f64, y: f64, is_subject: bool) -> Rc<SweepEvent<f64>> {
-        SweepEvent::new_rc(0, Point2 { x, y }, false, Weak::new(), is_subject, true)
+        SweepEvent::new_rc(0, Point2::new(x, y), false, Weak::new(), is_subject, true)
     }
 
     fn check_order_in_queue(first: Rc<SweepEvent<f64>>, second: Rc<SweepEvent<f64>>) {

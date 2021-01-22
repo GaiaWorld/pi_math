@@ -2,15 +2,16 @@
 name = "cg2d"
 version = "0.1.0"
 authors = ["yineng <dev@dev.com>"]
+edition = "2018"
 
 [dependencies]
 slab = { path = "../../pi_lib/slab" }
 heap = { path = "../../pi_lib/heap" }
 fx_hashmap = { path = "../../pi_lib/fx_hashmap" }
-cgmath = { path = "../cgmath" }
 triangulation = { path = "../triangulation" }
-collision = { path = "../collision" }
-num-traits = "*"
+ncollide2d = "0.27.0"
+num-traits = "0.2.14"
+nalgebra = "0.24.0"
 
 [dev-dependencies]
 rand = "*"

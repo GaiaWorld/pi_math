@@ -2,11 +2,9 @@
 members = [
   "cg2d",
   "color",
-  "octree",
+  "spatialtree",
   "rect_map",
   "triangulation",
-  "cgmath",
-  "collision",
   "hash_value",
   "polygon",
 ]

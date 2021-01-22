@@ -1,18 +1,15 @@
 use super::divide_segment::divide_segment;
 use super::segment_intersection::{intersection, LineIntersection};
 use super::sweep_event::{EdgeType, SweepEvent};
-use num_traits::Float;
-use heap::simple_heap::{SimpleHeap};
+use heap::simple_heap::SimpleHeap;
+use nalgebra::{RealField, Scalar};
 use std::rc::Rc;
 
-pub fn possible_intersection<F>(
+pub fn possible_intersection<F: RealField + Scalar>(
     se1: &Rc<SweepEvent<F>>,
     se2: &Rc<SweepEvent<F>>,
     queue: &mut SimpleHeap<Rc<SweepEvent<F>>>,
-) -> u8
-where
-    F: Float,
-{
+) -> u8 {
     let (other1, other2) = match (se1.get_other_event(), se2.get_other_event()) {
         (Some(other1), Some(other2)) => (other1, other2),
         _ => return 0,

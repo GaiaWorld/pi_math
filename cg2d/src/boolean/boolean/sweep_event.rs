@@ -1,4 +1,4 @@
-use geo2d::Point2;
+use nalgebra::{Point2, RealField, Scalar};
 use num_traits::Float;
 use std::cell::RefCell;
 use std::cmp::Ordering;
@@ -18,7 +18,7 @@ pub enum EdgeType {
 #[derive(Clone)]
 struct MutablePart<F>
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     left: bool,
     other_event: Weak<SweepEvent<F>>,
@@ -32,7 +32,7 @@ where
 #[derive(Clone)]
 pub struct SweepEvent<F>
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     mutable: RefCell<MutablePart<F>>,
     pub contour_id: u32,
@@ -43,7 +43,7 @@ where
 
 impl<F> SweepEvent<F>
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     pub fn new_rc(
         contour_id: u32,
@@ -151,7 +151,7 @@ where
 
 impl<F> PartialEq for SweepEvent<F>
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     fn eq(&self, other: &Self) -> bool {
         self.contour_id == other.contour_id
@@ -161,11 +161,11 @@ where
     }
 }
 
-impl<F> Eq for SweepEvent<F> where F: Float {}
+impl<F> Eq for SweepEvent<F> where F: Scalar + RealField {}
 
 impl<F> PartialOrd for SweepEvent<F>
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -174,7 +174,7 @@ where
 
 impl<F> Ord for SweepEvent<F>
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     fn cmp(&self, other: &Self) -> Ordering {
         // Ord is exactly the other way round as in the js implementation as BinaryHeap sorts decending

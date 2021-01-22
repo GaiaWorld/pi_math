@@ -1,10 +1,9 @@
-use geo2d::Point2;
-use num_traits::Float;
+use nalgebra::{Point2, RealField, Scalar};
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum LineIntersection<F>
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     None,
     Point(Point2<F>),
@@ -18,20 +17,11 @@ pub fn intersection<F>(
     b2: Point2<F>,
 ) -> LineIntersection<F>
 where
-    F: Float,
+    F: Scalar + RealField,
 {
-    let va = Point2 {
-        x: a2.x - a1.x,
-        y: a2.y - a1.y,
-    };
-    let vb = Point2 {
-        x: b2.x - b1.x,
-        y: b2.y - b1.y,
-    };
-    let e = Point2 {
-        x: b1.x - a1.x,
-        y: b1.y - a1.y,
-    };
+    let va = Point2::new(a2.x - a1.x, a2.y - a1.y);
+    let vb = Point2::new(b2.x - b1.x, b2.y - b1.y);
+    let e = Point2::new(b1.x - a1.x, b1.y - a1.y);
     let mut kross = cross_product(va, vb);
     let mut sqr_kross = kross * kross;
     let sqr_len_a = dot_product(va, va);
@@ -87,18 +77,15 @@ where
 
 fn mid_point<F>(p: Point2<F>, s: F, d: Point2<F>) -> Point2<F>
 where
-    F: Float,
+    F: Scalar + RealField,
 {
-    Point2 {
-        x: p.x + s * d.x,
-        y: p.y + s * d.y,
-    }
+    Point2::new(p.x + s * d.x, p.y + s * d.y)
 }
 
 #[inline]
 fn cross_product<F>(a: Point2<F>, b: Point2<F>) -> F
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     a.x * b.y - a.y * b.x
 }
@@ -106,7 +93,7 @@ where
 #[inline]
 fn dot_product<F>(a: Point2<F>, b: Point2<F>) -> F
 where
-    F: Float,
+    F: Scalar + RealField,
 {
     a.x * b.x + a.y * b.y
 }
