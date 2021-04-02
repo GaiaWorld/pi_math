@@ -5,5 +5,5 @@ authors = ["yineng <dev@dev.com>"]
 
 [dependencies]
 cgmath = { path = "../cgmath" }
-slab = { path = "../../pi_lib/slab" }
+slab = { git = "https://github.com/GaiaWorld/pi_lib.git"}
 
