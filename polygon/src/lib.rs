@@ -583,7 +583,7 @@ pub fn split_by_lg_0(mut points: Vec<f32>, polygon_indices: &Vec<u16>, lg_pos: &
     let mut i_index = 0;
     let mut new_polygon: Vec<u16> = Vec::new();
     while i_index < new_point_count {
-        if new_dot_list[i_index] <= min_dot {
+        if min_eq_f32(new_dot_list[i_index], min_dot) {
             new_polygon.push(new_indices_list[i_index]);
         }
 
@@ -601,7 +601,7 @@ pub fn split_by_lg_0(mut points: Vec<f32>, polygon_indices: &Vec<u16>, lg_pos: &
         i_index = 0;
         let mut new_polygon: Vec<u16> = Vec::new();
         while i_index < new_point_count {
-            if min_dot <= new_dot_list[i_index] && new_dot_list[i_index] <= max_dot {
+            if  min_eq_f32(min_dot, new_dot_list[i_index]) && min_eq_f32(new_dot_list[i_index], max_dot) {
                 new_polygon.push(new_indices_list[i_index]);
             }
 
@@ -620,7 +620,7 @@ pub fn split_by_lg_0(mut points: Vec<f32>, polygon_indices: &Vec<u16>, lg_pos: &
     let mut new_polygon: Vec<u16> = Vec::new();
     i_index = 0;
     while i_index < new_point_count {
-        if max_dot <= new_dot_list[i_index] {
+        if min_eq_f32(max_dot ,new_dot_list[i_index]) {
             new_polygon.push(new_indices_list[i_index]);
         }
 
@@ -635,6 +635,17 @@ pub fn split_by_lg_0(mut points: Vec<f32>, polygon_indices: &Vec<u16>, lg_pos: &
 
     (points, new_polygon_indices_list)
 }
+
+// fn eq_f32(v1: f32, v2: f32) -> bool {
+//     v1 == v2 || ((v2 - v1).abs() <= std::f32::EPSILON)
+// }
+fn min_eq_f32(v1: f32, v2: f32) -> bool {
+	!(v1 - v2 > std::f32::EPSILON)
+}
+
+// fn max_eq_f32(v1: f32, v2: f32) -> bool {
+// 	!(v2 - v1 > std::f32::EPSILON)
+// }
 
 fn read_point_3d_f(points: &[f32], indices: &[u16], indices_index: usize) -> Point3D {
     let ix = (indices[indices_index] * 3) as usize;
