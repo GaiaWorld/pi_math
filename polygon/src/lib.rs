@@ -1209,7 +1209,8 @@ fn get_direction_vector(angle: f32) -> [f32; 2] {
 }
 
 fn float_clip(v: f32) -> f32 {
-    (v * 10000.0).round() / 10000.0
+	v
+    // (v * 10000.0).round() / 10000.0
 }
 
 type Point2D_Vec = Vec<f32>;
