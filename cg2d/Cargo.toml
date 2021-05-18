@@ -4,9 +4,9 @@ version = "0.1.0"
 authors = ["yineng <dev@dev.com>"]
 
 [dependencies]
-slab = { git = "https://github.com/GaiaWorld/pi_lib.git"}
-heap = { git = "https://github.com/GaiaWorld/pi_lib.git"}
-fx_hashmap = { git = "https://github.com/GaiaWorld/pi_lib.git"}
+slab = { path =  "../../pi_lib/slab"}
+heap = { path =  "../../pi_lib/heap"}
+fx_hashmap = { path =  "../../pi_lib/fx_hashmap"}
 
 cgmath = { path = "../cgmath" }
 triangulation = { path = "../triangulation" }
