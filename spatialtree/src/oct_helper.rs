@@ -9,6 +9,10 @@ use num_traits::{Float, FromPrimitive};
 
 use crate::*;
 
+/// 八叉树
+pub type OctTree<S, T> = Tree<OctHelper<S>, T, 8>;
+
+
 #[derive(Debug, Clone)]
 pub struct OctHelper<S: Scalar + RealField + Float> {
     phantom: PhantomData<S>,
@@ -229,9 +233,6 @@ impl<S: Scalar + RealField + Float> Helper<8> for OctHelper<S> {
         (a, loose)
     }
 }
-/// 八叉树
-pub type OctTree<S, T> = Tree<OctHelper<S>, T, 8>;
-
 
 /// oct节点查询函数的范本，aabb是否相交，参数a是查询参数，参数b是oct节点的aabb， 所以最常用的判断是左闭右开
 /// 应用方为了功能和性能，应该实现自己需要的oct节点的查询函数， 比如点查询， 球查询， 视锥体查询...

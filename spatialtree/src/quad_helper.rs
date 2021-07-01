@@ -1,5 +1,6 @@
 //! 四叉相关接口
 
+use std::fmt;
 use std::marker::PhantomData;
 use std::mem;
 
@@ -8,6 +9,11 @@ use ncollide2d::bounding_volume::*;
 use num_traits::{Float, FromPrimitive};
 
 use crate::*;
+
+
+/// 四叉树
+pub type QuadTree<S, T> = Tree<QuadHelper<S>, T, 4>;
+
 
 #[derive(Debug, Clone)]
 pub struct QuadHelper<S: Scalar + RealField + Float> {
@@ -183,8 +189,6 @@ impl<S: Scalar + RealField + Float> Helper<4> for QuadHelper<S> {
         (a, loose)
     }
 }
-/// 四叉树
-pub type QuadTree<S, T> = Tree<QuadHelper<S>, T, 4>;
 
 
 /// quad节点查询函数的范本，aabb是否相交，参数a是查询参数，参数b是quad节点的aabb， 所以最常用的判断是左闭右开
@@ -213,15 +217,17 @@ impl<S: Scalar + RealField + Float, T: Clone + PartialOrd> AbQueryArgs<S, T> {
 
 /// ab节点的查询函数, 这里只是一个简单范本，使用了quad节点的查询函数intersects
 /// 应用方为了功能和性能，应该实现自己需要的ab节点的查询函数， 比如点查询， 球查询-包含或相交， 视锥体查询...
-pub fn ab_query_func<S: Scalar + RealField + Float, T: Clone + PartialOrd>(
+pub fn ab_query_func<S: Scalar + RealField + Float, T: Clone + PartialOrd + fmt::Debug>(
     arg: &mut AbQueryArgs<S, T>,
     id: usize,
     aabb: &AABB<S>,
     bind: &T,
 ) {
+    println!("ab_query_func: id: {}, bind:{:?}, arg: {:?}", id, bind, arg.result);
     if intersects(&arg.aabb, aabb) {
         if bind > &arg.result.1 {
-            arg.result.0 = id
+            arg.result.0 = id;
+            arg.result.1 = bind.clone();
         }
     }
 }
@@ -449,7 +455,7 @@ fn test2() {
     );
     let mut args: AbQueryArgs<f32, usize> = AbQueryArgs::new(aabb.clone(), 0);
     tree.query(&aabb, intersects, &mut args, ab_query_func);
-    //assert_eq!(args.result(), [1, 2, 3]);
+    assert_eq!(args.result.1, 3);
 }
 
 #[test]
