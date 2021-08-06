@@ -159,12 +159,12 @@ pub fn find_lg_endp(polygon: &[f32], angle: f32) -> ((f32, f32), (f32, f32)) {
         let y = polygon[index * point_len + 1];
         let dot = get_dot(x, y, direct_vec2[0], direct_vec2[1]);
 
-        if dot < min_dot {
+        if min_f32(dot, min_dot) {
             min_dot     = dot;
             min_index   = index;
         }
         
-        if max_dot < dot {
+        if min_f32(max_dot, dot) {
             max_dot = dot;
         }
 
@@ -583,7 +583,7 @@ pub fn split_by_lg_0(mut points: Vec<f32>, polygon_indices: &Vec<u16>, lg_pos: &
     let mut i_index = 0;
     let mut new_polygon: Vec<u16> = Vec::new();
     while i_index < new_point_count {
-        if new_dot_list[i_index] <= min_dot {
+        if min_eq_f32(new_dot_list[i_index], min_dot) {
             new_polygon.push(new_indices_list[i_index]);
         }
 
@@ -601,7 +601,7 @@ pub fn split_by_lg_0(mut points: Vec<f32>, polygon_indices: &Vec<u16>, lg_pos: &
         i_index = 0;
         let mut new_polygon: Vec<u16> = Vec::new();
         while i_index < new_point_count {
-            if min_dot <= new_dot_list[i_index] && new_dot_list[i_index] <= max_dot {
+            if  min_eq_f32(min_dot, new_dot_list[i_index]) && min_eq_f32(new_dot_list[i_index], max_dot) {
                 new_polygon.push(new_indices_list[i_index]);
             }
 
@@ -620,7 +620,7 @@ pub fn split_by_lg_0(mut points: Vec<f32>, polygon_indices: &Vec<u16>, lg_pos: &
     let mut new_polygon: Vec<u16> = Vec::new();
     i_index = 0;
     while i_index < new_point_count {
-        if max_dot <= new_dot_list[i_index] {
+        if min_eq_f32(max_dot ,new_dot_list[i_index]) {
             new_polygon.push(new_indices_list[i_index]);
         }
 
@@ -635,6 +635,24 @@ pub fn split_by_lg_0(mut points: Vec<f32>, polygon_indices: &Vec<u16>, lg_pos: &
 
     (points, new_polygon_indices_list)
 }
+
+const EPSILON: f32 = std::f32::EPSILON * 1024.0;
+fn eq_f32(v1: f32, v2: f32) -> bool {
+    v1 == v2 || ((v2 - v1).abs() <= std::f32::EPSILON)
+}
+fn min_eq_f32(v1: f32, v2: f32) -> bool {
+	!(v1 - v2 > EPSILON)
+}
+
+fn min_f32(v1: f32, v2: f32) -> bool {
+	v2 - v1 > EPSILON
+}
+
+
+
+// fn max_eq_f32(v1: f32, v2: f32) -> bool {
+// 	!(v2 - v1 > std::f32::EPSILON)
+// }
 
 fn read_point_3d_f(points: &[f32], indices: &[u16], indices_index: usize) -> Point3D {
     let ix = (indices[indices_index] * 3) as usize;
@@ -718,11 +736,11 @@ pub fn interp_by_lg_0(points: &[f32], polygon_indices: &[u16], mut attrs: Vec<Ve
             let pre: usize;
             let nxt: usize;
             let percent: f32;
-            if lg <= start_lg {
+            if min_eq_f32(lg, start_lg) {
                 percent = 0.0;
                 pre = 0;
                 nxt = 1;
-            } else if lg >= end_lg {
+            } else if min_eq_f32(end_lg, lg)  {
                 percent = 1.0;
                 pre = lg_count - 2;
                 nxt = lg_count - 1;
@@ -1161,12 +1179,12 @@ fn is_between(a: f32, b: f32, in_v: f32) -> bool {
     // 目标点与端点差距 极小时，可能因为 目标点所在直线斜率 问题导致判断失误
     let v = in_v;
 
-    if b < a {
-        return b < v && v <= (a + 0.0);
-    } else if a < b {
-        return (a - 0.0) <= v && v < b;
+    if min_f32(b, a) {
+        return min_f32(b, v) && min_eq_f32(v, a);
+    } else if min_f32(a, b) {
+        return min_eq_f32(a - 0.0, v) && min_f32(v, b);
     } else {
-        return a == v;
+        return eq_f32(a, v);
     }
 }
 
@@ -1177,7 +1195,7 @@ fn find_pre_next_grad_direct(data_list: &[f32], value: f32) -> (usize, usize) {
 
     let mut index: usize = 0;
     while index <= (count as usize) - 1 {
-        if data_list[(index) as usize] <= value {
+        if min_eq_f32(data_list[(index) as usize], value) {
             pre_index = index;
         } else {
             nxt_index = index;
@@ -1209,7 +1227,8 @@ fn get_direction_vector(angle: f32) -> [f32; 2] {
 }
 
 fn float_clip(v: f32) -> f32 {
-    (v * 10000.0).round() / 10000.0
+	v
+    // (v * 10000.0).round() / 10000.0
 }
 
 type Point2D_Vec = Vec<f32>;
