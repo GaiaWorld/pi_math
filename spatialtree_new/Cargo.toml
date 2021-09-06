@@ -1,0 +1,17 @@
+[package]
+name = "spatialtree_new"
+version = "0.1.0"
+authors = ["yineng <dev@dev.com>"]
+edition = "2018"
+
+[dependencies]
+ncollide2d = "0.27.0"
+ncollide3d = "0.27.0"
+nalgebra = "0.24.0"
+map_new = { path = "../../pi_lib/map_new" }
+slab_new = { path = "../../pi_lib/slab_new" }
+num-traits = "0.2.14"
+
+[dev-dependencies]
+pcg_rand = "0.12"
+rand = "0.7"
