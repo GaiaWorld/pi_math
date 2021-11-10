@@ -13,7 +13,7 @@
 + spatialtree 空间数据结构：四叉 & 八叉
 + `TODO:` hash_value 计算hash值，建立 jira 任务，让 @罗彬 移到 pi_lib/
 
-## 推荐使用 的 数学 & 物理 库
+## 推荐使用 的 数学 & 物理 库 
 
 #### [rust-num系列：数字 抽象](https://github.com/rust-num/num)
 
