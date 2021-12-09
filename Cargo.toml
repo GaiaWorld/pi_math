@@ -5,6 +5,5 @@ members = [
   "spatialtree",
   "rect_map",
   "triangulation",
-  "hash_value",
   "polygon",
 ]
